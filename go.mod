@@ -1,4 +1,4 @@
-module github.com/ericpen12/go-tool
+module github.com/ericpen12/gotools
 
 go 1.19
 
