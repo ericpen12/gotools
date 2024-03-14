@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/ericpen12/gotools/log"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -62,6 +63,6 @@ func initMysql() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("数据库：%s 已连接\n", viper.Get("mysql.host"))
+	log.Infof("数据库：%s 已连接\n", viper.Get("mysql.host"))
 	return nil
 }
