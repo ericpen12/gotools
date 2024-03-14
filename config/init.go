@@ -7,14 +7,29 @@ import (
 	"gorm.io/gorm"
 )
 
-func initResource() {
-	list := []func() error{initMysql}
+func init() {
+	list := []func() error{
+		initViper,
+		initMysql,
+	}
 	for _, fn := range list {
 		err := fn()
 		if err != nil {
 			panic(err)
 		}
 	}
+}
+
+func initViper() error {
+	viper.SetConfigName("config")   // name of config file (without extension)
+	viper.SetConfigType("yaml")     // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("./config") // call multiple times to add many search paths
+	viper.AddConfigPath(".")        // optionally look for config in the working directory
+	err := viper.ReadInConfig()     // Find and read the config file
+	if err != nil {                 // Handle errors reading the config file
+		return fmt.Errorf("fatal error config file: %w", err)
+	}
+	return nil
 }
 
 var DB *gorm.DB
