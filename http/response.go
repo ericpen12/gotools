@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
+	"net/http"
 )
 
 type Parser interface {
@@ -17,11 +17,12 @@ type EasyResponse interface {
 	Bind(data interface{}) error
 	UnescapeString() EasyResponse
 	FormatJson() string
+	StatusCode() int
 }
 
-func Read(body io.Reader, format any) (EasyResponse, error) {
+func Read(resp *http.Response, format any) (EasyResponse, error) {
 	buf := bytes.NewBuffer(make([]byte, 0, 1024))
-	_, err := buf.ReadFrom(body)
+	_, err := buf.ReadFrom(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +31,8 @@ func Read(body io.Reader, format any) (EasyResponse, error) {
 		return nil, err
 	}
 	return &result{
-		buf: newBuffer,
+		buf:        newBuffer,
+		statusCode: resp.StatusCode,
 	}, nil
 }
 
@@ -57,7 +59,8 @@ func getBuffer(r *bytes.Buffer, format any) (*bytes.Buffer, error) {
 }
 
 type result struct {
-	buf *bytes.Buffer
+	buf        *bytes.Buffer
+	statusCode int
 }
 
 func (r *result) Buffer() *bytes.Buffer {
@@ -66,6 +69,10 @@ func (r *result) Buffer() *bytes.Buffer {
 
 func (r *result) String() string {
 	return r.buf.String()
+}
+
+func (r *result) StatusCode() int {
+	return r.statusCode
 }
 
 func (r *result) Bind(data interface{}) error {

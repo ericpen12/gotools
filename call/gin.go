@@ -4,38 +4,55 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"reflect"
+	"strings"
 )
 
-var globalService interface{}
-
-func RegisterHandler(e *gin.Engine, uri string, service interface{}) {
-	globalService = service
-	e.POST(uri, handler)
-}
-
-func handler(c *gin.Context) {
+func Driver(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
 			response(c, nil, err.(error))
 		}
 	}()
-	ret, err := callByFuncName(c.Query("method"), bindParams(c))
-	response(c, ret, err)
+	data, err := callMethod(c)
+	response(c, data, err)
 }
 
-func callByFuncName(method string, bind bindOption) (interface{}, error) {
-	if method == "" {
-		return nil, fmt.Errorf("method 不能为空")
-	}
-	fn := reflect.ValueOf(globalService).MethodByName(method)
-	if fn.Kind() != reflect.Func {
-		return nil, fmt.Errorf("method is not exist: %s", method)
-	}
-	params, err := reflectParams(fn.Type(), bind)
+func callMethod(c *gin.Context) (any, error) {
+	method, err := getMethod(c.Query("method"))
 	if err != nil {
-		return nil, fmt.Errorf("parse params error: %s", err)
+		return nil, err
 	}
-	return formatResult(fn.Call(params))
+	params := make(map[string]any)
+	_ = c.ShouldBind(&params)
+	var ret Result
+	if len(params) == 0 {
+		ret = Call(method)
+	} else {
+		ret = Call(method, params)
+	}
+	if ret.Err != nil {
+		return nil, ret.Err
+	}
+	return formatResult(ret.Return)
+}
+
+func getMethod(method string) (string, error) {
+	if _, ok := fSet[method]; ok {
+		return method, nil
+	}
+	var contains []string
+	for k := range fSet {
+		if strings.HasSuffix(k, method) {
+			contains = append(contains, k)
+		}
+	}
+	if len(contains) == 0 {
+		return "", fmt.Errorf("method: %s not found", method)
+	}
+	if len(contains) > 1 {
+		return "", fmt.Errorf("many method matched, what do you mean:\n %s", strings.Join(contains, "\n"))
+	}
+	return contains[0], nil
 }
 
 func formatResult(list []reflect.Value) (interface{}, error) {
@@ -68,25 +85,4 @@ func response(ginCtx *gin.Context, data interface{}, err error) {
 		resp.Code = -1
 	}
 	ginCtx.JSON(200, resp)
-}
-
-type bindOption func(param any) error
-
-func reflectParams(fnType reflect.Type, bind bindOption) ([]reflect.Value, error) {
-	var result []reflect.Value
-	if fnType.NumIn() == 0 {
-		return result, nil
-	}
-	tv := reflect.New(fnType.In(0).Elem())
-	if err := bind(tv.Interface()); err != nil {
-		return result, err
-	}
-	result = append(result, reflect.ValueOf(tv.Interface()))
-	return result, nil
-}
-
-func bindParams(ginCtx *gin.Context) bindOption {
-	return func(param any) error {
-		return ginCtx.ShouldBindJSON(param)
-	}
 }

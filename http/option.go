@@ -49,6 +49,12 @@ func WithMethodPost() Option {
 	}
 }
 
+func WithMethodGet() Option {
+	return func(r *httpRequest) {
+		r.method = http.MethodGet
+	}
+}
+
 func WithResponse(res any) Option {
 	return func(r *httpRequest) {
 		r.response = res
@@ -66,5 +72,16 @@ func WithHeader(headers map[string]string) Option {
 func WithToken(token string) Option {
 	return func(r *httpRequest) {
 		r.header.Set("Authorization", token)
+	}
+}
+
+func WithProxy(proxy string) Option {
+	return func(r *httpRequest) {
+		if r.client == nil {
+			return
+		}
+		r.client.Transport = &http.Transport{Proxy: func(_ *http.Request) (*url.URL, error) {
+			return url.Parse(proxy)
+		}}
 	}
 }
