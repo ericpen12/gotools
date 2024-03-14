@@ -9,6 +9,6 @@ import (
 var PrintRunCost = func() func() {
 	timeNow := time.Now()
 	return func() {
-		fmt.Printf("耗时: %0.3f\n", time.Since(timeNow).Seconds())
+		fmt.Printf("耗时: %0.3fs\n", time.Since(timeNow).Seconds())
 	}
 }()
