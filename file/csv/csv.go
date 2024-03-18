@@ -15,6 +15,7 @@ type Operator interface {
 	ToCsv(filename string) error
 	ExchangeColumn(i, j int)
 	MoveColumn(current, target int)
+	Add(data []string)
 }
 
 type Csv struct {
@@ -58,6 +59,10 @@ func (r *Csv) Range(fn func(record []string) bool) {
 			break
 		}
 	}
+}
+
+func (r *Csv) Add(data []string) {
+	r.data = append(r.data, data)
 }
 
 func NewCsvFile(filename string) Operator {
