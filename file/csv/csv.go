@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-type Operator interface {
+type Csv interface {
 	TitleIndex(title string) int
 	DeleteColumn(index int)
 	AddColumn(title string, index int)
@@ -18,11 +18,11 @@ type Operator interface {
 	Add(data []string)
 }
 
-type Csv struct {
+type Buffer struct {
 	data [][]string
 }
 
-func (r *Csv) TitleIndex(title string) int {
+func (r *Buffer) TitleIndex(title string) int {
 	if len(r.data) == 0 {
 		return -1
 	}
@@ -34,7 +34,7 @@ func (r *Csv) TitleIndex(title string) int {
 	return -1
 }
 
-func (r *Csv) DeleteColumn(index int) {
+func (r *Buffer) DeleteColumn(index int) {
 	if len(r.data)-1 < index {
 		return
 	}
@@ -43,7 +43,7 @@ func (r *Csv) DeleteColumn(index int) {
 	}
 }
 
-func (r *Csv) AddColumn(title string, index int) {
+func (r *Buffer) AddColumn(title string, index int) {
 	content := title
 	for i := range r.data {
 		if i > 0 {
@@ -53,7 +53,7 @@ func (r *Csv) AddColumn(title string, index int) {
 	}
 }
 
-func (r *Csv) Range(fn func(record []string) bool) {
+func (r *Buffer) Range(fn func(record []string) bool) {
 	for _, record := range r.data {
 		if !fn(record) {
 			break
@@ -61,11 +61,11 @@ func (r *Csv) Range(fn func(record []string) bool) {
 	}
 }
 
-func (r *Csv) Add(data []string) {
+func (r *Buffer) Add(data []string) {
 	r.data = append(r.data, data)
 }
 
-func NewCsvFile(filename string) Operator {
+func NewCsvFile(filename string) Csv {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Info("无法打开 Operator 文件:", err)
@@ -79,10 +79,10 @@ func NewCsvFile(filename string) Operator {
 		}
 		list = append(list, record)
 	}
-	return &Csv{data: list}
+	return &Buffer{data: list}
 }
 
-func (r *Csv) ExchangeColumn(i, j int) {
+func (r *Buffer) ExchangeColumn(i, j int) {
 	if len(r.data)-1 < i || len(r.data)-1 < j {
 		return
 	}
@@ -91,7 +91,7 @@ func (r *Csv) ExchangeColumn(i, j int) {
 	}
 }
 
-func (r *Csv) MoveColumn(current, target int) {
+func (r *Buffer) MoveColumn(current, target int) {
 	if len(r.data)-1 < current || len(r.data)-1 < target {
 		return
 	}
@@ -103,11 +103,11 @@ func (r *Csv) MoveColumn(current, target int) {
 	}
 }
 
-func NewReaderStringSlice(content [][]string) Operator {
-	return &Csv{data: content}
+func NewReaderStringSlice(content [][]string) Csv {
+	return &Buffer{data: content}
 }
 
-func (r *Csv) ToCsv(filename string) error {
+func (r *Buffer) ToCsv(filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
