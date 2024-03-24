@@ -5,6 +5,7 @@ import (
 	"github.com/ericpen12/gotools/log"
 	"io"
 	"os"
+	"strings"
 )
 
 type Csv interface {
@@ -76,6 +77,9 @@ func NewCsvFile(filename string) Csv {
 		record, err := r.Read()
 		if err == io.EOF {
 			break
+		}
+		for i, v := range record {
+			record[i] = strings.TrimSpace(v)
 		}
 		list = append(list, record)
 	}
