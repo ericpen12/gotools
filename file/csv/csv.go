@@ -96,11 +96,11 @@ func (r *Buffer) ExchangeColumn(i, j int) {
 }
 
 func (r *Buffer) MoveColumn(current, target int) {
-	if len(r.data)-1 < current || len(r.data)-1 < target {
-		return
-	}
 	for k, v := range r.data {
 		var list []string
+		if len(v)-1 < current || len(v)-1 < target {
+			return
+		}
 		for k2, v2 := range v {
 			if k2 == current {
 				continue
