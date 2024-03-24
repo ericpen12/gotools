@@ -102,13 +102,15 @@ func (r *Buffer) MoveColumn(current, target int) {
 			return
 		}
 		for k2, v2 := range v {
-			if k2 == current {
-				continue
+			if current != target {
+				if k2 == current {
+					continue
+				}
+				if k2 == target {
+					list = append(list, v[current])
+				}
+				list = append(list, v2)
 			}
-			if k2 == target {
-				list = append(list, v[current])
-			}
-			list = append(list, v2)
 		}
 		r.data[k] = list
 	}
