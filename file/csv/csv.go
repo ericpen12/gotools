@@ -100,10 +100,17 @@ func (r *Buffer) MoveColumn(current, target int) {
 		return
 	}
 	for k, v := range r.data {
-		tempValue := v[current]
-		temp := append(v[:current], v[current+1:]...)
-		temp = append(temp[:target], append([]string{tempValue}, temp[target:]...)...)
-		r.data[k] = temp
+		var list []string
+		for k2, v2 := range v {
+			if k2 == current {
+				continue
+			}
+			if k2 == target {
+				list = append(list, v[target])
+			}
+			list = append(list, v2)
+		}
+		r.data[k] = list
 	}
 }
 
