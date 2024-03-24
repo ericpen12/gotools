@@ -109,8 +109,8 @@ func (r *Buffer) MoveColumn(current, target int) {
 				if k2 == target {
 					list = append(list, v[current])
 				}
-				list = append(list, v2)
 			}
+			list = append(list, v2)
 		}
 		r.data[k] = list
 	}
