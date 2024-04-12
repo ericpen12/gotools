@@ -2,22 +2,18 @@ package config
 
 import (
 	"fmt"
-	"github.com/ericpen12/gotools/log"
 	"github.com/spf13/viper"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+)
+
+var (
+	ErrConfigNotFound  = fmt.Errorf("配置不存在")
+	ErrConfigStructure = fmt.Errorf("配置结构错误")
 )
 
 func init() {
-	list := []func() error{
-		initViper,
-		initMysql,
-	}
-	for _, fn := range list {
-		err := fn()
-		if err != nil {
-			panic(err)
-		}
+	err := initViper()
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -33,9 +29,7 @@ func initViper() error {
 	return nil
 }
 
-var DB *gorm.DB
-
-type mysqlConfig struct {
+type MysqlConfig struct {
 	Username string
 	Password string
 	Database string
@@ -43,26 +37,14 @@ type mysqlConfig struct {
 	Port     int
 }
 
-func initMysql() error {
+func Mysql() (*MysqlConfig, error) {
 	if viper.Get("mysql") == nil {
-		return nil
+		return nil, ErrConfigNotFound
 	}
-	var config mysqlConfig
+	var config MysqlConfig
 	err := viper.UnmarshalKey("mysql", &config)
 	if err != nil {
-		return err
+		return nil, ErrConfigStructure
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Database,
-	)
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return err
-	}
-	log.Infof("数据库：%s 已连接\n", viper.Get("mysql.host"))
-	return nil
+	return &config, nil
 }

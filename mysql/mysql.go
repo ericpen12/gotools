@@ -1,0 +1,34 @@
+package mysql
+
+import (
+	"fmt"
+	"github.com/ericpen12/gotools/config"
+	"github.com/ericpen12/gotools/log"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+)
+
+var DB *gorm.DB
+
+func init() {
+	cfg, err := config.Mysql()
+	if err != nil {
+		panic(err)
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database,
+	)
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		log.Errorf("数据库连接失败 err=%v; config=%+v", err, cfg)
+		return
+	}
+	log.Debugf("数据库：%s 已连接", cfg.Host)
+}
