@@ -8,15 +8,8 @@ import (
 )
 
 var logger *zap.Logger
-var sugar *zap.SugaredLogger
 
 func init() {
-	logger, _ = zap.NewProduction(zap.AddCallerSkip(1))
-	defer logger.Sync() // flushes buffer, if any
-	sugar = logger.Sugar()
-}
-
-func init2() {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	// 设置日志记录中时间的格式
 	encoderConfig.EncodeTime = func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
