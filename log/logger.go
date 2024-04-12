@@ -1,61 +1,73 @@
 package log
 
+import (
+	"fmt"
+	"go.uber.org/zap/zapcore"
+)
+
 func Info(data ...any) {
-	sugar.Info(data...)
+	do(zapcore.InfoLevel, "", data...)
 }
 
 func Debug(data ...any) {
-	sugar.Debug(data...)
+	do(zapcore.DebugLevel, "", data...)
 }
 
 func Error(data ...any) {
-	sugar.Error(data...)
+	do(zapcore.ErrorLevel, "", data...)
 }
 
 func Warn(data ...any) {
-	sugar.Warn(data...)
+	do(zapcore.WarnLevel, "", data...)
 }
 
 func Fatal(data ...any) {
-	sugar.Fatal(data...)
+	do(zapcore.FatalLevel, "", data...)
 }
 
 func Infof(template string, data ...any) {
-	sugar.Infof(template, data...)
+	do(zapcore.InfoLevel, template, data...)
 }
 
 func Debugf(template string, data ...any) {
-	sugar.Debugf(template, data...)
+	do(zapcore.DebugLevel, template, data...)
 }
 
 func Errorf(template string, data ...any) {
-	sugar.Errorf(template, data...)
+	do(zapcore.ErrorLevel, template, data...)
 }
 
 func Warnf(template string, data ...any) {
-	sugar.Warnf(template, data...)
+	do(zapcore.WarnLevel, template, data...)
 }
 
 func Fatalf(template string, data ...any) {
-	sugar.Fatalf(template, data...)
+	do(zapcore.FatalLevel, template, data...)
 }
 
-func Infow(msg string, keysAndValues ...any) {
-	sugar.Infow(msg, keysAndValues...)
+func formatMsg(template string, args ...any) string {
+	if template != "" {
+		return fmt.Sprintf(template+"", args...)
+	}
+	for i, arg := range args {
+		if i <= len(args)-1 {
+			args[i] = fmt.Sprintf("%v ", arg)
+		}
+	}
+	return fmt.Sprint(args...)
 }
 
-func Debugw(msg string, keysAndValues ...any) {
-	sugar.Debugw(msg, keysAndValues...)
-}
-
-func Errorw(msg string, keysAndValues ...any) {
-	sugar.Errorw(msg, keysAndValues...)
-}
-
-func Warnw(msg string, keysAndValues ...any) {
-	sugar.Warnw(msg, keysAndValues...)
-}
-
-func Fatalw(msg string, keysAndValues ...any) {
-	sugar.Fatalw(msg, keysAndValues...)
+func do(level zapcore.Level, template string, args ...any) {
+	switch level {
+	case zapcore.DebugLevel:
+		logger.Debug(formatMsg(template, args...))
+	case zapcore.InfoLevel:
+		logger.Info(formatMsg(template, args...))
+	case zapcore.WarnLevel:
+		logger.Warn(formatMsg(template, args...))
+	case zapcore.ErrorLevel:
+		logger.Error(formatMsg(template, args...))
+	case zapcore.FatalLevel:
+		logger.Fatal(formatMsg(template, args...))
+	}
 }
