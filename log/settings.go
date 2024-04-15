@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/ericpen12/gotools/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -27,9 +28,17 @@ func init() {
 	// 生成打印到console的encoder
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 
+	c := config.Log()
+
+	level := zapcore.InfoLevel
+
+	if c.Level == "debug" {
+		level = zapcore.DebugLevel
+	}
+
 	core := zapcore.NewTee(
 		// 同时向控制台和文件写日志， 生产环境记得把控制台写入去掉，日志记录的基本是Debug 及以上，生产环境记得改成Info
-		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), zapcore.DebugLevel),
+		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
 		//zapcore.NewCore(fileEncoder, zapcore.AddSync(&logConfig.logRoll), zapcore.DebugLevel),
 	)
 	// 返回调用栈

@@ -48,3 +48,13 @@ func Mysql() (*MysqlConfig, error) {
 	}
 	return &config, nil
 }
+
+type LogConfig struct {
+	Level string
+}
+
+func Log() LogConfig {
+	var c LogConfig
+
+	return c
+}
