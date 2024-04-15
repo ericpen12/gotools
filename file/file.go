@@ -2,18 +2,20 @@ package file
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 )
 
-type FileInfo struct {
-	Path string
-	Line int
+type Info struct {
+	Path       string
+	Line       int
+	Preference string
 }
 
-type ReadLineFunc func(content string, info FileInfo) bool
+type ReadLineFunc func(content string, info Info) bool
 
 func ReadLine(filepath string, fn ReadLineFunc) error {
 	f, err := os.Open(filepath)
@@ -22,13 +24,13 @@ func ReadLine(filepath string, fn ReadLineFunc) error {
 	}
 	defer f.Close()
 
-	info := FileInfo{
+	info := Info{
 		Path: filepath,
 	}
 	return readLine(bufio.NewReader(f), info, fn)
 }
 
-func readLine(buf *bufio.Reader, info FileInfo, fn ReadLineFunc) error {
+func readLine(buf *bufio.Reader, info Info, fn ReadLineFunc) error {
 	for {
 		lineBytes, _, err := buf.ReadLine()
 		if err == io.EOF {
@@ -38,6 +40,7 @@ func readLine(buf *bufio.Reader, info FileInfo, fn ReadLineFunc) error {
 			return err
 		}
 		info.Line++
+		info.Preference = fmt.Sprintf("%s:%d", info.Path, info.Line)
 		if !fn(string(lineBytes), info) {
 			return nil
 		}
