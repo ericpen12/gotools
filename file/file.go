@@ -3,20 +3,32 @@ package file
 import (
 	"bufio"
 	"io"
+	"io/fs"
 	"os"
+	"path/filepath"
 )
 
-func ReadLine(filepath string, fn func(content string, line int) bool) error {
+type FileInfo struct {
+	Path string
+	Line int
+}
+
+type ReadLineFunc func(content string, info FileInfo) bool
+
+func ReadLine(filepath string, fn ReadLineFunc) error {
 	f, err := os.Open(filepath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	return readLine(bufio.NewReader(f), fn)
+
+	info := FileInfo{
+		Path: filepath,
+	}
+	return readLine(bufio.NewReader(f), info, fn)
 }
 
-func readLine(buf *bufio.Reader, fn func(content string, line int) bool) error {
-	var line int
+func readLine(buf *bufio.Reader, info FileInfo, fn ReadLineFunc) error {
 	for {
 		lineBytes, _, err := buf.ReadLine()
 		if err == io.EOF {
@@ -25,9 +37,23 @@ func readLine(buf *bufio.Reader, fn func(content string, line int) bool) error {
 		if err != nil {
 			return err
 		}
-		line++
-		if !fn(string(lineBytes), line) {
+		info.Line++
+		if !fn(string(lineBytes), info) {
 			return nil
 		}
 	}
+}
+
+func ReadLineByWalkDir(dir string, fn ReadLineFunc, ignorePath ...string) error {
+	return filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+		for _, v := range ignorePath {
+			if path == v {
+				return nil
+			}
+		}
+		return ReadLine(path, fn)
+	})
 }
