@@ -7,4 +7,5 @@ import (
 
 func TestReadConfig(t *testing.T) {
 	t.Log(viper.Get("mysql.username"))
+
 }
