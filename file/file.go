@@ -47,15 +47,13 @@ func readLine(buf *bufio.Reader, info Info, fn ReadLineFunc) error {
 	}
 }
 
-func ReadLineByWalkDir(dir string, fn ReadLineFunc, ignorePath ...string) error {
+func ReadLineByWalkDir(dir string, fn ReadLineFunc, ignore func(path string) bool) error {
 	return filepath.Walk(dir, func(path string, info fs.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
-		for _, v := range ignorePath {
-			if path == v {
-				return nil
-			}
+		if ignore != nil && ignore(path) {
+			return nil
 		}
 		return ReadLine(path, fn)
 	})
