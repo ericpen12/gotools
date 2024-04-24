@@ -12,3 +12,12 @@ var PrintRunCost = func() func() {
 		fmt.Printf("耗时: %0.3fs\n", time.Since(timeNow).Seconds())
 	}
 }()
+
+func ZeroTime(t time.Time) time.Time {
+	year, month, day := t.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+}
+
+func ZeroTimeToday() time.Time {
+	return ZeroTime(time.Now())
+}
