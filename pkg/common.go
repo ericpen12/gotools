@@ -13,11 +13,13 @@ var PrintRunCost = func() func() {
 	}
 }()
 
+// ZeroTime 获取指定日期的零点
 func ZeroTime(t time.Time) time.Time {
 	year, month, day := t.Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
 }
 
+// ZeroTimeToday 获取今天的零点
 func ZeroTimeToday() time.Time {
 	return ZeroTime(time.Now())
 }
