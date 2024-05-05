@@ -49,6 +49,12 @@ func WithMethodPost() Option {
 	}
 }
 
+func WithMethodGet() Option {
+	return func(r *httpRequest) {
+		r.method = http.MethodGet
+	}
+}
+
 func WithResponse(res any) Option {
 	return func(r *httpRequest) {
 		r.response = res

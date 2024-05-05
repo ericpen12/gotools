@@ -7,5 +7,7 @@ import (
 
 func TestPrintRunCost(t *testing.T) {
 	defer PrintRunCost()
-	time.Sleep(time.Second)
+	timeNow := time.Now().Add(-60 * time.Second)
+
+	time.Since(timeNow).Seconds()
 }
