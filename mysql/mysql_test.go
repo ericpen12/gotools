@@ -2,8 +2,9 @@ package mysql
 
 import "testing"
 
-func Test_initMysql(t *testing.T) {
-	if DB != nil {
+func TestGetDB(t *testing.T) {
+	db := GetDB("mysql")
+	if db != nil {
 		t.Log("connect")
 	}
 }
