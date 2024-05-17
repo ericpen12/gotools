@@ -74,3 +74,14 @@ func WithToken(token string) Option {
 		r.header.Set("Authorization", token)
 	}
 }
+
+func WithProxy(proxy string) Option {
+	return func(r *httpRequest) {
+		if r.client == nil {
+			return
+		}
+		r.client.Transport = &http.Transport{Proxy: func(_ *http.Request) (*url.URL, error) {
+			return url.Parse(proxy)
+		}}
+	}
+}

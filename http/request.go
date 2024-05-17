@@ -53,5 +53,5 @@ func (h *httpRequest) Do() (EasyResponse, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return Read(resp.Body, h.response)
+	return Read(resp, h.response)
 }
