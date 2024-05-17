@@ -44,12 +44,12 @@ type MysqlConfig struct {
 	Port     int
 }
 
-func Mysql() (*MysqlConfig, error) {
-	if viper.Get("mysql") == nil {
+func Mysql(configName string) (*MysqlConfig, error) {
+	if viper.Get(configName) == nil {
 		return nil, ErrConfigNotFound
 	}
 	var config MysqlConfig
-	err := viper.UnmarshalKey("mysql", &config)
+	err := viper.UnmarshalKey(configName, &config)
 	if err != nil {
 		return nil, ErrConfigStructure
 	}
