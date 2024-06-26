@@ -37,7 +37,7 @@ func callMethod(c *gin.Context) (any, error) {
 }
 
 func getMethod(method string) (string, error) {
-	if !strings.Contains(method, "/") && !strings.Contains(method, ".") {
+	if _, ok := fSet[method]; ok {
 		return method, nil
 	}
 	var contains []string
