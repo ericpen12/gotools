@@ -22,11 +22,11 @@ var fSet = FuncSet{}
 
 func Register(fn ...Func) {
 	for _, v := range fn {
-		RegisterByName(GetFuncName(v), v)
+		RegisterByAlias(GetFuncName(v), v)
 	}
 }
 
-func RegisterByName(name string, fn Func) {
+func RegisterByAlias(name string, fn Func) {
 	if _, ok := fSet[name]; ok {
 		panic("方法名：%s 已注册")
 	}
