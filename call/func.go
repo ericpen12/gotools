@@ -33,9 +33,9 @@ func RegisterByAlias(name string, fn Func) {
 	fSet[name] = fn
 }
 
-func RegisterFuncSet(m FuncSet) {
+func RegisterInBatchByAlias(m FuncSet) {
 	for k, v := range m {
-		RegisterByName(k, v)
+		RegisterByAlias(k, v)
 	}
 }
 
