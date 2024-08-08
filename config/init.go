@@ -6,11 +6,6 @@ import (
 	"os"
 )
 
-var (
-	ErrConfigNotFound  = fmt.Errorf("配置不存在")
-	ErrConfigStructure = fmt.Errorf("配置结构错误")
-)
-
 func init() {
 	err := initViper()
 	if err != nil {
@@ -36,32 +31,18 @@ func initViper() error {
 	return nil
 }
 
-type MysqlConfig struct {
-	Username string
-	Password string
-	Database string
-	Host     string
-	Port     int
-}
+var (
+	ErrConfigNotFound  = fmt.Errorf("配置不存在")
+	ErrConfigStructure = fmt.Errorf("配置结构错误")
+)
 
-func Mysql(configName string) (*MysqlConfig, error) {
+func Load(configName string, model any) error {
 	if viper.Get(configName) == nil {
-		return nil, ErrConfigNotFound
+		return ErrConfigNotFound
 	}
-	var config MysqlConfig
-	err := viper.UnmarshalKey(configName, &config)
+	err := viper.UnmarshalKey(configName, model)
 	if err != nil {
-		return nil, ErrConfigStructure
+		return ErrConfigStructure
 	}
-	return &config, nil
-}
-
-type LogConfig struct {
-	Level string
-}
-
-func Log() LogConfig {
-	var c LogConfig
-
-	return c
+	return nil
 }

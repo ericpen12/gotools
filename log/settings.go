@@ -13,6 +13,11 @@ import (
 
 var logger *zap.Logger
 
+type Config struct {
+	Level    string
+	Filename string
+}
+
 func init() {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	// 设置日志记录中时间的格式
@@ -31,29 +36,34 @@ func init() {
 	// 生成打印到console的encoder
 	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 
-	c := config.Log()
+	var cfg Config
+	_ = config.Load("log", &cfg)
 
 	level := zapcore.InfoLevel
-
-	if c.Level == "debug" {
+	if cfg.Level == "debug" {
 		level = zapcore.DebugLevel
 	}
 
 	core := zapcore.NewTee(
 		// 同时向控制台和文件写日志， 生产环境记得把控制台写入去掉，日志记录的基本是Debug 及以上，生产环境记得改成Info
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
-		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.InfoLevel)), zapcore.InfoLevel),
-		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.WarnLevel)), zapcore.WarnLevel),
-		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.ErrorLevel)), zapcore.ErrorLevel),
-		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.FatalLevel)), zapcore.FatalLevel),
+		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.InfoLevel, cfg)), zapcore.InfoLevel),
+		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.WarnLevel, cfg)), zapcore.WarnLevel),
+		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.ErrorLevel, cfg)), zapcore.ErrorLevel),
+		zapcore.NewCore(fileEncoder, zapcore.AddSync(writerSyncer(zapcore.FatalLevel, cfg)), zapcore.FatalLevel),
 	)
 	// 返回调用栈
 	logger = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(2))
 }
 
-func writerSyncer(level zapcore.Level) zapcore.WriteSyncer {
+func writerSyncer(level zapcore.Level, cfg Config) zapcore.WriteSyncer {
+	filename := cfg.Filename
+	if filename == "" {
+		homePath, _ := os.UserHomeDir()
+		filename = fmt.Sprintf("%s/%s/%s.log", homePath, pkg.GetCurrentAppName(), level.String())
+	}
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:   fmt.Sprintf("/Users/qiaoyupeng/%s/%s.log", pkg.GetCurrentAppName(), level.String()),
+		Filename:   filename,
 		MaxSize:    10, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28,   //days

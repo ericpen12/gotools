@@ -17,8 +17,17 @@ func GetDB(name string) *gorm.DB {
 	return db
 }
 
+type Config struct {
+	Username string
+	Password string
+	Database string
+	Host     string
+	Port     int
+}
+
 func connect(name string) (*gorm.DB, error) {
-	cfg, err := config.Mysql(name)
+	var cfg Config
+	err := config.Load(name, cfg)
 	if err != nil {
 		return nil, err
 	}
