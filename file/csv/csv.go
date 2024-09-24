@@ -2,6 +2,7 @@ package csv
 
 import (
 	"encoding/csv"
+	"fmt"
 	"github.com/ericpen12/gotools/log"
 	"io"
 	"os"
@@ -17,10 +18,16 @@ type Csv interface {
 	ExchangeColumn(i, j int)
 	MoveColumn(current, target int)
 	Add(data []string)
+	SetColumnWidth(width int)
 }
 
 type Buffer struct {
-	data [][]string
+	data        [][]string
+	columnWidth int
+}
+
+func (r *Buffer) SetColumnWidth(width int) {
+	r.columnWidth = width
 }
 
 func (r *Buffer) TitleIndex(title string) int {
@@ -125,10 +132,22 @@ func (r *Buffer) ToCsv(filename string) error {
 	if err != nil {
 		return err
 	}
+	r.autoWidth()
 	w := csv.NewWriter(file)
 	if err := w.WriteAll(r.data); err != nil {
 		return err
 	}
 	w.Flush()
 	return nil
+}
+
+func (r *Buffer) autoWidth() {
+	if r.columnWidth <= 0 {
+		return
+	}
+	for i, v := range r.data {
+		for j, v2 := range v {
+			r.data[i][j] = fmt.Sprintf("%-*s", r.columnWidth, v2)
+		}
+	}
 }
