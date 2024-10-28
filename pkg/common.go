@@ -2,10 +2,8 @@ package pkg
 
 import (
 	"fmt"
-	"github.com/atotto/clipboard"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -32,15 +30,4 @@ func ZeroTimeToday() time.Time {
 func GetCurrentAppName() string {
 	programPath := os.Args[0]
 	return filepath.Base(programPath)
-}
-
-func GetCookieFromClipboard() (string, error) {
-	text, err := clipboard.ReadAll()
-	if err != nil {
-		return "", err
-	}
-	if !strings.Contains(text, "=") {
-		return "", fmt.Errorf("未获取到cookie信息")
-	}
-	return text, nil
 }
