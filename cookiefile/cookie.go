@@ -20,11 +20,14 @@ type Cookie struct {
 	expireTime time.Duration
 }
 
+const ReadyReadFromClipboard = "ReadyRead"
+
 func (c *Cookie) Get() (string, error) {
 	cookie := c.getCache()
 	if cookie != "" {
 		return cookie, nil
 	}
+	_ = clipboard.WriteAll(ReadyReadFromClipboard)
 	c1 := time.After(time.Minute)
 	for {
 		select {
@@ -32,7 +35,10 @@ func (c *Cookie) Get() (string, error) {
 			return "", fmt.Errorf("未获取到cookie信息")
 		default:
 			time.Sleep(time.Second)
-			cookie = getFromClipboard()
+			cookie, err := getFromClipboard()
+			if err != nil {
+				return "", err
+			}
 			if cookie != "" {
 				c.set(cookie)
 				return cookie, nil
@@ -62,13 +68,13 @@ func (c *Cookie) set(value string) {
 	_ = os.WriteFile(c.filename, []byte(value), os.ModePerm)
 }
 
-func getFromClipboard() string {
+func getFromClipboard() (string, error) {
 	text, err := clipboard.ReadAll()
 	if err != nil {
-		return ""
+		return "", err
 	}
-	if !strings.Contains(text, "=") {
-		return ""
+	if !strings.Contains(text, "=") || text != ReadyReadFromClipboard {
+		return "", fmt.Errorf("cookie格式有误")
 	}
-	return text
+	return text, nil
 }
