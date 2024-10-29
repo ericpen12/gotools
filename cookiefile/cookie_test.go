@@ -8,6 +8,7 @@ import (
 func TestNew(t *testing.T) {
 	s := New("./aa.cookie", time.Second*10)
 	//s.Set("ddd")
-	ret := s.Get()
+	ret, err := s.Get()
+	t.Log(err)
 	t.Log(ret)
 }
