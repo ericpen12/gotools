@@ -3,20 +3,25 @@ package cookiefile
 import (
 	"fmt"
 	"github.com/atotto/clipboard"
+	"net/url"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
 
-func New(filename string, expireTime time.Duration) *Cookie {
+func New(link string, expireTime time.Duration) *Cookie {
+	u, _ := url.Parse(link)
 	return &Cookie{
-		filename:   filename,
+		filename:   u.Host + ".cookie",
+		url:        link,
 		expireTime: expireTime,
 	}
 }
 
 type Cookie struct {
 	filename   string
+	url        string
 	expireTime time.Duration
 }
 
@@ -27,6 +32,7 @@ func (c *Cookie) Get() (string, error) {
 	if cookie != "" {
 		return cookie, nil
 	}
+	_ = exec.Command(`open`, c.url).Start()
 	_ = clipboard.WriteAll(ReadyReadFromClipboard)
 	c1 := time.After(time.Minute)
 	for {
