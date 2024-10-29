@@ -25,7 +25,7 @@ func (c *Cookie) Get() (string, error) {
 	if cookie != "" {
 		return cookie, nil
 	}
-	c1 := time.After(time.Second * 10)
+	c1 := time.After(time.Minute)
 	for {
 		select {
 		case <-c1:
