@@ -3,7 +3,7 @@ package config
 import "testing"
 
 func TestConfigCenter(t *testing.T) {
-	NewConfig(WithClientLocalDB())
+	NewConfig("gotools", WithClientLocalDB())
 	ret, err := Get("1")
 	if err != nil {
 		t.Log(err)
