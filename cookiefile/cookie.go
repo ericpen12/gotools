@@ -79,7 +79,10 @@ func getFromClipboard() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if !strings.Contains(text, "=") || text != ReadyReadFromClipboard {
+	if text == ReadyReadFromClipboard {
+		return "", nil
+	}
+	if !strings.Contains(text, "=") {
 		return "", fmt.Errorf("cookie格式有误")
 	}
 	return text, nil
