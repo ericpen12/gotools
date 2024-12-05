@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -22,32 +23,37 @@ type clientDB struct {
 	db *gorm.DB
 }
 
-func (c *clientDB) Get(key string) (string, error) {
+func (c *clientDB) Get(key, scene string) (string, error) {
 	var result configModel
-	err := c.db.Take(&result, "name=? and scene=?", key, cfg.scene).Error
+	err := c.db.Take(&result, "name=? and scene=?", key, scene).Error
 	return result.Config, err
 }
 
-func (c *clientDB) Set(key, value string) error {
-	ret, _ := c.Get(key)
+func (c *clientDB) Set(key, value, scene string) error {
+	ret, _ := c.Get(key, scene)
 	if len(ret) == 0 {
 		return c.db.Create(&configModel{
 			Name:   key,
-			Scene:  cfg.scene,
+			Scene:  scene,
 			Config: value,
 		}).Error
 	}
 	return c.db.Model(&configModel{}).
-		Where("name=? and scene=?", key, cfg.scene).
+		Where("name=? and scene=?", key, scene).
 		Update("config", value).Error
 }
 
-func (c *clientDB) BindJson(key string, ptr any) error {
-	return c.db.Take(ptr, "name=? and scene=?", key, cfg.scene).Error
+func (c *clientDB) BindJson(key string, ptr any, scene string) error {
+	var res configModel
+	err := c.db.Take(&res, "name=? and scene=?", key, scene).Error
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(res.Config), ptr)
 }
 
-func (c *clientDB) Del(key string) error {
-	return c.db.Model(&configModel{}).Delete(nil, "name=? and scene=?", key, cfg.scene).Error
+func (c *clientDB) Del(key, scene string) error {
+	return c.db.Model(&configModel{}).Delete(nil, "name=? and scene=?", key, scene).Error
 }
 
 func newClientDB() (*clientDB, error) {

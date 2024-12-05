@@ -3,14 +3,18 @@ package mysql
 import (
 	"fmt"
 	"github.com/ericpen12/gotools/config"
-	"github.com/ericpen12/gotools/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 func GetDB(name string) *gorm.DB {
-	db, err := connect(name)
+	var cfg Config
+	err := config.BindJson(name, &cfg)
+	if err != nil {
+		panic(err)
+	}
+	db, err := connect(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -25,12 +29,7 @@ type Config struct {
 	Port     int
 }
 
-func connect(name string) (*gorm.DB, error) {
-	var cfg Config
-	err := config.Load(name, cfg)
-	if err != nil {
-		return nil, err
-	}
+func connect(cfg Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		cfg.Username,
 		cfg.Password,
@@ -44,6 +43,18 @@ func connect(name string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Debugf("数据库：%s 已连接", cfg.Host)
 	return db, nil
+}
+
+func GetCommonDB(name string) *gorm.DB {
+	var cfg Config
+	err := config.CommonBindJson(name, &cfg)
+	if err != nil {
+		panic(err)
+	}
+	db, err := connect(cfg)
+	if err != nil {
+		panic(err)
+	}
+	return db
 }

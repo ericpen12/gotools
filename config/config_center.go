@@ -17,10 +17,10 @@ func NewConfig(scene string, opts ...Option) {
 }
 
 type Client interface {
-	Get(key string) (string, error)
-	Set(key, value string) error
-	BindJson(key string, ptr any) error
-	Del(key string) error
+	Get(key, scene string) (string, error)
+	Set(key, value, scene string) error
+	BindJson(key string, ptr any, scene string) error
+	Del(key, scene string) error
 }
 
 type Option func(c *config)
@@ -50,7 +50,7 @@ func Get(key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return c.Get(key)
+	return c.Get(key, cfg.scene)
 }
 
 func Set(key, value string) error {
@@ -58,7 +58,7 @@ func Set(key, value string) error {
 	if err != nil {
 		return err
 	}
-	return c.Set(key, value)
+	return c.Set(key, value, cfg.scene)
 }
 
 func BindJson(key string, ptr any) error {
@@ -66,7 +66,17 @@ func BindJson(key string, ptr any) error {
 	if err != nil {
 		return err
 	}
-	return c.BindJson(key, ptr)
+	return c.BindJson(key, ptr, cfg.scene)
+}
+
+const commonScene = "common-config"
+
+func CommonBindJson(key string, ptr any) error {
+	c, err := saveClient()
+	if err != nil {
+		return err
+	}
+	return c.BindJson(key, ptr, commonScene)
 }
 
 func Del(key string) error {
@@ -74,5 +84,9 @@ func Del(key string) error {
 	if err != nil {
 		return err
 	}
-	return c.Del(key)
+	return c.Del(key, cfg.scene)
+}
+
+func AppName() string {
+	return cfg.scene
 }
