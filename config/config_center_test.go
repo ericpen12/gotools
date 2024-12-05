@@ -3,13 +3,12 @@ package config
 import "testing"
 
 func TestConfigCenter(t *testing.T) {
-	NewConfig("gotools", WithClientLocalDB())
+	NewConfig("gotools")
 	ret, err := Get("1")
 	if err != nil {
 		t.Log(err)
 	}
 	t.Log(ret)
-
 	err = Set("1", "{\"a\":1}")
 	if err != nil {
 		t.Log(err)

@@ -10,7 +10,11 @@ type config struct {
 var cfg *config
 
 func NewConfig(scene string, opts ...Option) {
-	cfg = &config{scene: scene}
+	client, err := newClientDB()
+	if err != nil {
+		panic("数据库连接失败:" + err.Error())
+	}
+	cfg = &config{scene: scene, client: client}
 	for _, opt := range opts {
 		opt(cfg)
 	}
@@ -24,16 +28,6 @@ type Client interface {
 }
 
 type Option func(c *config)
-
-func WithClientLocalDB() Option {
-	return func(c *config) {
-		client, err := newClientDB()
-		if err != nil {
-			panic("数据库连接失败:" + err.Error())
-		}
-		c.client = client
-	}
-}
 
 func saveClient() (Client, error) {
 	if cfg == nil {

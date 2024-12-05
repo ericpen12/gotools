@@ -6,7 +6,7 @@ import (
 )
 
 func TestDebugLog(t *testing.T) {
-	config.NewConfig("gotools", config.WithClientLocalDB())
+	config.NewConfig("gotools")
 	Init()
 	Info("test")
 	Debug("test")
