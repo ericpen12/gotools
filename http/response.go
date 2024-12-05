@@ -18,6 +18,7 @@ type EasyResponse interface {
 	UnescapeString() EasyResponse
 	FormatJson() string
 	StatusCode() int
+	Cookie() []*http.Cookie
 }
 
 func Read(resp *http.Response, format any) (EasyResponse, error) {
@@ -30,7 +31,9 @@ func Read(resp *http.Response, format any) (EasyResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(resp.Cookies(), newBuffer.String())
 	return &result{
+		Response:   *resp,
 		buf:        newBuffer,
 		statusCode: resp.StatusCode,
 	}, nil
@@ -59,6 +62,7 @@ func getBuffer(r *bytes.Buffer, format any) (*bytes.Buffer, error) {
 }
 
 type result struct {
+	http.Response
 	buf        *bytes.Buffer
 	statusCode int
 }
@@ -73,6 +77,10 @@ func (r *result) String() string {
 
 func (r *result) StatusCode() int {
 	return r.statusCode
+}
+
+func (r *result) Cookie() []*http.Cookie {
+	return r.Cookies()
 }
 
 func (r *result) Bind(data interface{}) error {

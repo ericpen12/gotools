@@ -5,12 +5,8 @@ go 1.19
 require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/gin-gonic/gin v1.9.1
-	github.com/havoc-io/go-keytar v0.0.0-20190805193312-c9afc30c49ac
-	github.com/keybase/go-keychain v0.0.0-20231219164618-57a3676c3af6
-	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.21.0
-	golang.org/x/crypto v0.17.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/mysql v1.5.4
 	gorm.io/gorm v1.25.7
@@ -19,7 +15,6 @@ require (
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
-	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
