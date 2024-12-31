@@ -61,7 +61,7 @@ func (c *Cookie) getCache() string {
 	if err != nil {
 		return ""
 	}
-	if fileInfo.ModTime().Before(time.Now().Add(-c.expireTime)) {
+	if c.expireTime > 0 && fileInfo.ModTime().Before(time.Now().Add(-c.expireTime)) {
 		_ = os.Remove(c.filename)
 		return ""
 	}
