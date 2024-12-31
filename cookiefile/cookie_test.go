@@ -3,11 +3,10 @@ package cookiefile
 import (
 	"net/url"
 	"testing"
-	"time"
 )
 
 func TestNew(t *testing.T) {
-	s := New("./aa.cookie", time.Second*10)
+	s := New("./aa.cookie")
 	//s.Set("ddd")
 	ret, err := s.Get()
 	t.Log(err)

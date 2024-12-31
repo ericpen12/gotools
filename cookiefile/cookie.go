@@ -10,12 +10,11 @@ import (
 	"time"
 )
 
-func New(link string, expireTime time.Duration) *Cookie {
+func New(link string) *Cookie {
 	u, _ := url.Parse(link)
 	return &Cookie{
-		filename:   u.Host + ".cookie",
-		url:        link,
-		expireTime: expireTime,
+		filename: u.Host + ".cookie",
+		url:      link,
 	}
 }
 
@@ -26,6 +25,10 @@ type Cookie struct {
 }
 
 const ReadyReadFromClipboard = "ReadyRead"
+
+func (c *Cookie) SetExpire(expire time.Duration) {
+	c.expireTime = expire
+}
 
 func (c *Cookie) Get() (string, error) {
 	cookie := c.getCache()

@@ -15,6 +15,10 @@ type configModel struct {
 	Config      string `json:"config"`
 }
 
+type configStruct struct {
+	Data string
+}
+
 func (c *configModel) TableName() string {
 	return "config"
 }
@@ -24,9 +28,16 @@ type clientDB struct {
 }
 
 func (c *clientDB) Get(key, scene string) (string, error) {
-	var result configModel
-	err := c.db.Take(&result, "name=? and scene=?", key, scene).Error
-	return result.Config, err
+	var m configModel
+	err := c.db.Take(&m, "name=? and scene=?", key, scene).Error
+	if err != nil {
+		return "", err
+	}
+	var result configStruct
+	if len(m.Config) > 0 {
+		_ = json.Unmarshal([]byte(m.Config), &result)
+	}
+	return result.Data, err
 }
 
 func (c *clientDB) Set(key, value, scene string) error {
@@ -44,12 +55,11 @@ func (c *clientDB) Set(key, value, scene string) error {
 }
 
 func (c *clientDB) BindJson(key string, ptr any, scene string) error {
-	var res configModel
-	err := c.db.Take(&res, "name=? and scene=?", key, scene).Error
+	str, err := c.Get(key, scene)
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal([]byte(res.Config), ptr)
+	return json.Unmarshal([]byte(str), ptr)
 }
 
 func (c *clientDB) Del(key, scene string) error {
