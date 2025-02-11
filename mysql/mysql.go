@@ -29,7 +29,12 @@ type Config struct {
 	Port     int
 }
 
+var dbMap = make(map[string]*gorm.DB)
+
 func connect(cfg Config) (*gorm.DB, error) {
+	if db, ok := dbMap[cfg.Database]; ok {
+		return db, nil
+	}
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		cfg.Username,
 		cfg.Password,
@@ -43,6 +48,7 @@ func connect(cfg Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	dbMap[cfg.Database] = db
 	return db, nil
 }
 
